@@ -1,4 +1,4 @@
-'''Cloud ML Engine package configuration.'''
+"""Cloud ML Engine package configuration."""
 from setuptools import setup, find_packages
 
 setup(name='mnist_mlp',

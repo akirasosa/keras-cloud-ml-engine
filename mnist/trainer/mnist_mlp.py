@@ -10,14 +10,14 @@ from __future__ import print_function
 
 import argparse
 import pickle  # for handling the new data source
-import h5py  # for saving the model
-import keras
+import sys
 from datetime import datetime  # for filename conventions
-from keras.models import Sequential
+
+import keras
 from keras.layers import Dense, Dropout
+from keras.models import Sequential
 from keras.optimizers import RMSprop
 from tensorflow.python.lib.io import file_io  # for better file I/O
-import sys
 
 batch_size = 128
 num_classes = 10
@@ -67,11 +67,16 @@ def train_model(train_file='data/mnist.pkl',
                   optimizer=RMSprop(),
                   metrics=['accuracy'])
 
+    tf_cb = keras.callbacks.TensorBoard(log_dir=job_dir, histogram_freq=0,
+                                        write_graph=True,
+                                        write_images=True)
+
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,
                         verbose=1,
-                        validation_data=(x_test, y_test))
+                        validation_data=(x_test, y_test),
+                        callbacks=[tf_cb])
 
     score = model.evaluate(x_test, y_test, verbose=0)
     print('Test loss:', score[0])
@@ -90,11 +95,11 @@ if __name__ == '__main__':
     # Parse the input arguments for common Cloud ML Engine options
     parser = argparse.ArgumentParser()
     parser.add_argument(
-      '--train-file',
-      help='Cloud Storage bucket or local path to training data')
+        '--train-file',
+        help='Cloud Storage bucket or local path to training data')
     parser.add_argument(
-      '--job-dir',
-      help='Cloud storage bucket to export the model and store temp files')
+        '--job-dir',
+        help='Cloud storage bucket to export the model and store temp files')
     args = parser.parse_args()
     arguments = args.__dict__
     train_model(**arguments)
